@@ -8,80 +8,101 @@
 
 #import "HamburgerButton.h"
 
+@interface HamburgerButton ()
+
+@property (nonatomic, assign) CGFloat scaleFactor;
+@property (nonatomic, assign) CGFloat smallerSide;
+
+@end
+
 @implementation HamburgerButton
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code
-        
-        shortStroke = CGPathCreateMutable();
-        CGPathMoveToPoint(shortStroke, nil, 2, 2);
-        CGPathAddLineToPoint(shortStroke, nil, 28, 2);
-        
-        outline = CGPathCreateMutable();
-        CGPathMoveToPoint(outline, nil, 10, 27);
-        CGPathAddCurveToPoint(outline, nil, 12.00, 27.00, 28.02, 27.00, 40, 27);
-        CGPathAddCurveToPoint(outline, nil, 55.92, 27.00, 50.47,  2.00, 27,  2);
-        CGPathAddCurveToPoint(outline, nil, 13.16,  2.00,  2.00, 13.16,  2, 27);
-        CGPathAddCurveToPoint(outline, nil,  2.00, 40.84, 13.16, 52.00, 27, 52);
-        CGPathAddCurveToPoint(outline, nil, 40.84, 52.00, 52.00, 40.84, 52, 27);
-        CGPathAddCurveToPoint(outline, nil, 52.00, 13.16, 42.39,  2.00, 27,  2);
-        CGPathAddCurveToPoint(outline, nil, 13.16,  2.00,  2.00, 13.16,  2, 27);
-        
-        menuStrokeStart = 0.325;
-        menuStrokeEnd = 0.9;
-        hamburgerStrokeStart = 0.028;
-        hamburgerStrokeEnd = 0.111;
-        
-        top = [[CAShapeLayer alloc] init];
-        top.path = shortStroke;
-        middle = [[CAShapeLayer alloc] init];
-        middle.path = outline;
-        bottom = [[CAShapeLayer alloc] init];
-        bottom.path = shortStroke;
-        
-        
-        for (CAShapeLayer *layer in @[top, middle, bottom]) {
-            layer.fillColor = nil;
-            layer.strokeColor = [[UIColor whiteColor] CGColor];
-            layer.lineWidth = 4;
-            layer.miterLimit = 4;
-            layer.lineCap = kCALineCapRound;
-            layer.masksToBounds = true;
-            
-            CGPathRef strokingPath = CGPathCreateCopyByStrokingPath(layer.path, nil, 4, kCGLineCapRound, kCGLineJoinMiter, 4);
-            
-            layer.bounds = CGPathGetPathBoundingBox(strokingPath);
-            
-            layer.actions = @{
-                              @"strokeStart" : [NSNull null],
-                              @"strokeEnd" : [NSNull null],
-                              @"transform" : [NSNull null],
-                              };
-            
-
-            [self.layer addSublayer:layer];
-        }
-        
-        
-        top.anchorPoint = CGPointMake(28.0 / 30.0, 0.5);
-        top.position = CGPointMake(40, 18);
-        
-        middle.position = CGPointMake(27, 27);
-        middle.strokeStart = hamburgerStrokeStart;
-        middle.strokeEnd = hamburgerStrokeEnd;
-        
-        bottom.anchorPoint = CGPointMake(28.0 / 30.0, 0.5);
-        bottom.position = CGPointMake(40, 36);
-        
-        
+        [self setup];
     }
     return self;
 }
 
 
+- (void)awakeFromNib
+{
+    [super awakeFromNib];
+    
+    [self setup];
+}
+
+- (void)setup
+{
+    self.smallerSide = MIN(self.bounds.size.width, self.bounds.size.height);
+    self.scaleFactor = self.smallerSide / 55.0f;
+    
+    shortStroke = CGPathCreateMutable();
+    CGPathMoveToPoint(shortStroke, nil, 2 * self.scaleFactor, 2 * self.scaleFactor);
+    CGPathAddLineToPoint(shortStroke, nil, 28 * self.scaleFactor, 2 * self.scaleFactor);
+    
+    outline = CGPathCreateMutable();
+    CGPathMoveToPoint(outline, nil, 10 * self.scaleFactor, 27 * self.scaleFactor);
+    CGPathAddCurveToPoint(outline, nil, 12.00f * self.scaleFactor, 27.00f * self.scaleFactor, 28.02f * self.scaleFactor, 27.00f * self.scaleFactor, 40.0f * self.scaleFactor, 27.0f * self.scaleFactor);
+    CGPathAddCurveToPoint(outline, nil, 55.92f * self.scaleFactor, 27.00f * self.scaleFactor, 50.47f * self.scaleFactor,  2.00f * self.scaleFactor, 27.0f * self.scaleFactor,  2.0f * self.scaleFactor);
+    CGPathAddCurveToPoint(outline, nil, 13.16f * self.scaleFactor,  2.00f * self.scaleFactor,  2.00f * self.scaleFactor, 13.16f * self.scaleFactor,  2.0f * self.scaleFactor, 27.0f * self.scaleFactor);
+    CGPathAddCurveToPoint(outline, nil,  2.00f * self.scaleFactor, 40.84f * self.scaleFactor, 13.16f * self.scaleFactor, 52.00f * self.scaleFactor, 27.0f * self.scaleFactor, 52.0f * self.scaleFactor);
+    CGPathAddCurveToPoint(outline, nil, 40.84f * self.scaleFactor, 52.00f * self.scaleFactor, 52.00f * self.scaleFactor, 40.84f * self.scaleFactor, 52.0f * self.scaleFactor, 27.0f * self.scaleFactor);
+    CGPathAddCurveToPoint(outline, nil, 52.00f * self.scaleFactor, 13.16f * self.scaleFactor, 42.39f * self.scaleFactor,  2.00f * self.scaleFactor, 27.0f * self.scaleFactor,  2.0f * self.scaleFactor);
+    CGPathAddCurveToPoint(outline, nil, 13.16f * self.scaleFactor,  2.00f * self.scaleFactor,  2.00f * self.scaleFactor, 13.16f * self.scaleFactor,  2.0f * self.scaleFactor, 27.0f * self.scaleFactor);
+    
+    menuStrokeStart = 0.325f;
+    menuStrokeEnd = 0.9f;
+    hamburgerStrokeStart = 0.028f;
+    hamburgerStrokeEnd = 0.111f;
+    
+    top = [[CAShapeLayer alloc] init];
+    top.path = shortStroke;
+    middle = [[CAShapeLayer alloc] init];
+    middle.path = outline;
+    bottom = [[CAShapeLayer alloc] init];
+    bottom.path = shortStroke;
+    
+    
+    for (CAShapeLayer *layer in @[top, middle, bottom]) {
+        layer.fillColor = nil;
+        layer.strokeColor = [[UIColor whiteColor] CGColor];
+        layer.lineWidth = 4;
+        layer.miterLimit = 4;
+        layer.lineCap = kCALineCapRound;
+        layer.masksToBounds = true;
+        
+        CGPathRef strokingPath = CGPathCreateCopyByStrokingPath(layer.path, nil, 4, kCGLineCapRound, kCGLineJoinMiter, 4);
+        
+        layer.bounds = CGPathGetPathBoundingBox(strokingPath);
+        
+        layer.actions = @{
+                          @"strokeStart" : [NSNull null],
+                          @"strokeEnd" : [NSNull null],
+                          @"transform" : [NSNull null],
+                          };
+        
+        
+        [self.layer addSublayer:layer];
+        
+        CGPathRelease(strokingPath);
+    }
+    
+    const CGFloat hCenter = self.bounds.size.width / 2;
+    const CGFloat vCenter = self.bounds.size.height / 2;
+    const CGFloat vOffset = self.smallerSide / 6;
+    top.anchorPoint = CGPointMake(0.5f, 0.5f);
+    top.position = CGPointMake(hCenter, vCenter - vOffset);
+    
+    middle.strokeStart = hamburgerStrokeStart;
+    middle.strokeEnd = hamburgerStrokeEnd;
+    middle.position = CGPointMake(hCenter, vCenter);
+    
+    bottom.anchorPoint = CGPointMake(0.5f, 0.5f);
+    bottom.position = CGPointMake(hCenter, vCenter + vOffset);
+}
 
 - (void)setShowsMenu:(BOOL)value {
     
@@ -93,28 +114,28 @@
     if (value) {
         [strokeStart setToValue:[NSNumber numberWithFloat:menuStrokeStart]];
         strokeStart.duration = 0.5;
-        strokeStart.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25 :-0.4 :0.5 :1];
+        strokeStart.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25f :-0.4f :0.5f :1.0f];
         
         [strokeEnd setToValue:[NSNumber numberWithFloat:menuStrokeEnd]];
         strokeEnd.duration = 0.6;
-        strokeEnd.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25 :-0.4 :0.5 :1];
+        strokeEnd.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25f :-0.4f :0.5f :1.0f];
     } else {
         [strokeStart setToValue:[NSNumber numberWithFloat:hamburgerStrokeStart]];
         strokeStart.duration = 0.5;
-        strokeStart.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25 :0 :0.5 :1.2];
+        strokeStart.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25f :0 :0.5f :1.2f];
         strokeStart.beginTime = CACurrentMediaTime() + 0.1;
         strokeStart.fillMode = kCAFillModeBackwards;
         
         [strokeEnd setToValue:[NSNumber numberWithFloat:hamburgerStrokeEnd]];
         strokeEnd.duration = 0.6;
-        strokeEnd.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25 :0.3 :0.5 :0.9];
+        strokeEnd.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25f :0.3f :0.5f :0.9f];
     }
 
     
     [middle ocb_applyAnimation:strokeStart];
     [middle ocb_applyAnimation:strokeEnd];
     
-    CAMediaTimingFunction *timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25 :-0.8 :0.75 :1.85];
+    CAMediaTimingFunction *timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.25f :-0.8f :0.75f :1.85f];
     
     CABasicAnimation *topTransform = [CABasicAnimation animationWithKeyPath:@"transform"];
     topTransform.timingFunction = timingFunction;
@@ -125,12 +146,18 @@
     bottomTransform.fillMode = kCAFillModeBackwards;
     
     if (value) {
-        CATransform3D translation = CATransform3DMakeTranslation(-4, 0, 0);
+
+        const CGFloat angle = 0.7853975f;
+        const CGFloat vOffset = self.smallerSide / 6;
         
-        topTransform.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate(translation, -0.7853975, 0, 0, 1)];
+        CATransform3D topTransformation = CATransform3DMakeTranslation(0, vOffset, 0);
+        topTransformation = CATransform3DRotate(topTransformation, -angle, 0, 0, 1);
+        topTransform.toValue = [NSValue valueWithCATransform3D:topTransformation];
         topTransform.beginTime = CACurrentMediaTime() + 0.25;
         
-        bottomTransform.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate(translation, 0.7853975, 0, 0, 1)];
+        CATransform3D bottomTransformation = CATransform3DMakeTranslation(0, -vOffset, 0);
+        bottomTransformation = CATransform3DRotate(bottomTransformation, angle, 0, 0, 1);
+        bottomTransform.toValue = [NSValue valueWithCATransform3D:bottomTransformation];
         bottomTransform.beginTime = CACurrentMediaTime() + 0.25;
     } else {
         topTransform.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
